@@ -6,6 +6,8 @@ public class Paddle_Script : MonoBehaviour
 {
     public float paddleSpeed = 10f;
     public KeyCode moveUpKey, moveDownKey;
+
+    public AudioSource hit;
     // Start is called before the first frame update
     void Start()
     {
@@ -30,5 +32,17 @@ public class Paddle_Script : MonoBehaviour
             Vector3 newPos      = new Vector3(currPos.x, currPos.y - paddleSpeed * Time.deltaTime ,currPos.z);
             transform.position  = newPos;
         }
+    }
+
+    private void OnCollisionEnter(Collision other){
+        if (name == "Paddle 1")
+        {
+            hit.panStereo = 1;
+        }
+        else if(name == "Paddle 2")
+        {
+            hit.panStereo = -1;
+        }
+        hit.Play();
     }
 }
