@@ -8,12 +8,15 @@ public class Ball_Script : MonoBehaviour
     public float        speed = 1f;
     private Rigidbody   rb;
     private Vector3     startPos;
-    private int         resetMultiplier = 1;
+    // private int         resetMultiplier = 1;
     private int         hDir = 1;
     private int         vDir = 1;
     private int         scorer = 0;
 
-    public Vector3         nF;
+    // private Vector3     nF;
+    public float        acceleration = 0;
+    public float        maxSpeed = 400;
+    private bool        spin;
 
     // public AudioSource hit;    
 
@@ -41,34 +44,53 @@ public class Ball_Script : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
+        // nF = new Vector3(0.0f,200.0f,0.0f);
         if(other.tag == "LBound")
         {
             scorer = 1;
+            // reset ball and increment score
+            ScoreScript.S.UpdateScore(scorer);
+            Reset();
         }
         else if(other.tag == "RBound")
         {
             scorer = 0;
+            // reset ball and increment score
+            ScoreScript.S.UpdateScore(scorer);
+            Reset();
         }
-        // else
-        // {
-        //     if (other.tag == "Player")
-        //     {
-        //         hit.Play();
-        //     }
-        // }
 
-        // reset ball and increment score
-        ScoreScript.S.UpdateScore(scorer);
-        Reset();
-    }
-    private void Spin (Collider other)
-    {
-        nF = new Vector3(0.0f,2.0f,0.0f)
-        if(other.tag == "Player")
+        // spinning the ball
+        else if(other.tag == "Player")
         {
-            rb.AddForce(nF,ForceMode.Acceleration);
+            // Debug.Log(nF);
+            // rb.AddForce(nF,ForceMode.Acceleration);
+            spin = true;
         }
+
     }
+
+    private void Update()
+    {
+        OnTriggerEnter();
+        Debug.Log("Spin: "+ spin);
+        if(spin == true)
+        {
+            transform.Translate(0, acceleration * Time.deltaTime, 0);
+            if (acceleration < maxSpeed)
+            {
+                Debug.Log("Acceleration" + acceleration);
+                acceleration *= 5;
+            }
+            else if (acceleration >= maxSpeed)
+            {
+                acceleration = 0;
+                spin = false;
+            }
+        }
+
+    }
+
     private void Reset()
     {
         if (scorer == 0)
@@ -86,10 +108,11 @@ public class Ball_Script : MonoBehaviour
         vDir = Mathf.RoundToInt(Random.Range(-1f,1f));
         if (vDir == 0) vDir = -1;
 
-        Debug.Log(resetMultiplier);
+        // Debug.Log(resetMultiplier);
         //Put Ball in the Middle
         transform.position = startPos;
         rb.velocity = Vector3.zero;
+        spin = false;
 
         StartCoroutine("Launch");
     }
